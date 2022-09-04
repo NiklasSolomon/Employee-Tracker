@@ -3,6 +3,31 @@ const inquirer = require('inquirer');
 const mysql2 = require('mysql2');
 const cTable = require('console.table');
 
+const db = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: process.env.DB_PASSWORD,
+    database: 'employee_db'
+},
+console.log('Connected to Employee Database.')
+);
+
+const beginPrompts = () => {
+    inquirer.prompt ([
+        {
+            type: 'list',
+            name: 'choices',
+            message: 'What would you like to do?',
+            choices: ['View all departments', 
+                        'View all roles', 
+                        'View all employees', 
+                        'Add a department', 
+                        'Add a role', 
+                        'Add an employee', 
+                        'Update an employee role']
+        }
+    ])
+}
 // View all departments
 // SELECT * FROM department
 
