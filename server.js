@@ -2,6 +2,7 @@
 const inquirer = require('inquirer');
 const mysql2 = require('mysql2');
 const cTable = require('console.table');
+const { allowedNodeEnvironmentFlags } = require('process');
 
 const db = mysql.createConnection({
     host: 'localhost',
@@ -27,7 +28,32 @@ const beginPrompts = () => {
                         'Update an employee role']
         }
     ])
-}
+    .then((answers) => {
+        const {choices} = answers;
+
+        if (choices === 'View all departments') {
+            viewDepartments();
+        }
+        if (choices === 'View all roles') {
+            viewRoles();
+        }
+        if (choices === 'View all employees') {
+            viewEmployees();
+        }
+        if (choices === 'Add a department') {
+            addDepartment();
+        }
+        if (choices === 'Add a role') {
+            addRole();
+        }
+        if (choices === 'Add an employee') {
+            addEmployee();
+        }
+        if (choices === 'Update an employee role') {
+            updateEmployee();
+        };
+    });
+};
 // View all departments
 // SELECT * FROM department
 
