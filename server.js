@@ -1,3 +1,8 @@
+// Adding dependencies
+const inquirer = require('inquirer');
+const mysql2 = require('mysql2');
+const cTable = require('console.table');
+
 // View all departments
 // SELECT * FROM department
 
