@@ -2,9 +2,8 @@
 const inquirer = require('inquirer');
 const mysql2 = require('mysql2');
 const cTable = require('console.table');
-const { allowedNodeEnvironmentFlags } = require('process');
 
-const db = mysql.createConnection({
+const db = mysql2.createConnection({
     host: 'localhost',
     user: 'root',
     password: process.env.DB_PASSWORD,
@@ -12,6 +11,16 @@ const db = mysql.createConnection({
 },
 console.log('Connected to Employee Database.')
 );
+
+db.connect(err => {
+    if (err) throw err;
+    runApp();
+});
+
+runApp = () => {
+    console.log('Welcome to the Employee Tracker application')
+    beginPrompts();
+};
 
 const beginPrompts = () => {
     inquirer.prompt ([
@@ -57,18 +66,34 @@ const beginPrompts = () => {
 // View all departments
 viewDepartments = () => {
     // SELECT * FROM department
-
+    const sql = `SELECT * FROM department`;
+    db.promise().query(sql, (err, rows) => {
+        if (err) throw err;
+        console.table(rows);
+        beginPrompts();
+    });
 };
 
 // View all roles
 viewRoles = () => {
     // SELECT * FROM role
-
+    const sql = `SELECT * FROM role`;
+    db.promise().query(sql, (err, rows) => {
+        if (err) throw err;
+        console.table(rows);
+        beginPrompts();
+    });
 };
 
 // View all employees
 viewEmployees = () => {
     // SELECT id, first_name, last_name FROM employee
+    const sql = `SELECT * FROM employee`;
+    db.promise().query(sql, (err, rows) => {
+        if (err) throw err;
+        console.table(rows);
+        beginPrompts();
+    });
 
 };
 
