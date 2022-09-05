@@ -174,10 +174,70 @@ addRole = () => {
 
 // Create a new employee
 addEmployee = () => {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'firstName',
+            message: "What is the employee's first name?"
+        },
+        {
+            type: 'input',
+            name: 'lastName',
+            message: "What is the employee's last name?"
+        }
+    ])
+    .then(answer => {
+        const params = [answer.firstName, answer.lastName]
+        const roleSQL = `SELECT role.id, role.title FROM role`;
+        db.promise().query(roleSQL, (err, data) => {
+            if (err) throw err;
+            const roles = data.map(({id, title}) => ({name: title, value: id}));
 
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'role',
+                    message: "What is the employee's role?",
+                    choices: roles
+                }
+            ])
+            .then(roleChoice => {
+                const role = roleChoice.role;
+                params.push(role);
+
+                const managerSQL = `SELECT * FROM employee`;
+                db.promise().query(managerSQL, (err, data) => {
+                    if (err) throw err;
+
+                    const managers = data.map(({id, first_name, last_name}) => ({name: first_name + " "+ last_name, value: id}));
+
+                    inquirer.prompt([
+                        {
+                            type: 'list',
+                            name: 'manager',
+                            message: "Who is the employee's manager?",
+                            choices: managers
+                        }
+                    ])
+                    .then(managerChoice => {
+                        const manager = managerChoice.manager;
+                        params.push(manager);
+                        const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`;
+                        db.query(sql, params, (err, result) => {
+                            if (err) throw err;
+                            console.log("Added new employee");
+                            beginPrompts();
+                        });
+                    });
+                });
+            });
+        });
+    });
 };
 
 // Update an existing employee role
 updateEmployee = () => {
     // SELECT * FROM employee
+    const employeeSQL = `SELECT * FROM employee`;
+    db.promise().query()
 };
