@@ -36,7 +36,8 @@ const beginPrompts = () => {
                         'Add a department', 
                         'Add a role', 
                         'Add an employee', 
-                        'Update an employee role']
+                        'Update an employee role',
+                        'Quit']
         }
     ])
     .then((answers) => {
@@ -62,6 +63,9 @@ const beginPrompts = () => {
         }
         if (choices === 'Update an employee role') {
             updateEmployee();
+        }
+        if (choices === 'Quit') {
+            db.end()
         };
     });
 };
@@ -69,7 +73,7 @@ const beginPrompts = () => {
 viewDepartments = () => {
     // SELECT * FROM department
     const sql = `SELECT * FROM department`;
-    db.promise().query(sql, (err, rows) => {
+    db.query(sql, (err, rows) => {
         if (err) throw err;
         console.table(rows);
         beginPrompts();
@@ -79,8 +83,8 @@ viewDepartments = () => {
 // View all roles
 viewRoles = () => {
     // SELECT * FROM role
-    const sql = `SELECT * FROM role`;
-    db.promise().query(sql, (err, rows) => {
+    const sql = `SELECT *, department.name AS department FROM role INNER JOIN department ON role.department_id = department.id`;
+    db.query(sql, (err, rows) => {
         if (err) throw err;
         console.table(rows);
         beginPrompts();
@@ -91,7 +95,7 @@ viewRoles = () => {
 viewEmployees = () => {
     // SELECT id, first_name, last_name FROM employee
     const sql = `SELECT * FROM employee`;
-    db.promise().query(sql, (err, rows) => {
+    db.query(sql, (err, rows) => {
         if (err) throw err;
         console.table(rows);
         beginPrompts();
@@ -143,7 +147,7 @@ addRole = () => {
         // Get the existing departments from the 'department' table
         const getDept = `SELECT name, id FROM department`;
         // THEN run the query
-        db.promise().query(getDept, (err, data) => {
+        db.query(getDept, (err, data) => {
             if (err) throw err;
             const dept = data.map(({name, id}) => ({name: name, value: id}));
 
@@ -191,7 +195,7 @@ addEmployee = () => {
     .then(answer => {
         const params = [answer.firstName, answer.lastName]
         const roleSQL = `SELECT role.id, role.title FROM role`;
-        db.promise().query(roleSQL, (err, data) => {
+        db.query(roleSQL, (err, data) => {
             if (err) throw err;
             const roles = data.map(({id, title}) => ({name: title, value: id}));
 
@@ -208,7 +212,7 @@ addEmployee = () => {
                 params.push(role);
 
                 const managerSQL = `SELECT * FROM employee`;
-                db.promise().query(managerSQL, (err, data) => {
+                db.query(managerSQL, (err, data) => {
                     if (err) throw err;
 
                     const managers = data.map(({id, first_name, last_name}) => ({name: first_name + " "+ last_name, value: id}));
@@ -241,7 +245,7 @@ addEmployee = () => {
 updateEmployee = () => {
     // SELECT * FROM employee
     const employeeSQL = `SELECT * FROM employee`;
-    db.promise().query(employeeSQL, (err, data) => {
+    db.query(employeeSQL, (err, data) => {
         if (err) throw err;
 
         const employees = data.map(({id, first_name, last_name}) => ({name: first_name + " "+ last_name, value: id}));
@@ -260,7 +264,7 @@ updateEmployee = () => {
             params.push(employee);
 
             const roleSQL = `SELECT * FROM role`;
-            db.promise().query(roleSQL, (err, data) => {
+            db.query(roleSQL, (err, data) => {
                 if (err) throw err;
                 const roles = data.map(({id, title}) => ({name: title, value: id}));
 
