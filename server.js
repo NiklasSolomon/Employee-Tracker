@@ -100,27 +100,76 @@ viewEmployees = () => {
 // Create new departments
 addDepartment = () => {
     // Prompt the user for the "name" of the department
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'addDept',
+            message: "What department would you like to add?"
+        }
+    ])
     // THEN run the query
-    // INSERT INTO department (name)
-    // VALUES ("Sales");
-    
-        // THEN ask the user what they want to do next
-
+    .then(answer => {
+        // INSERT INTO department (name)
+        // VALUES ("Sales");
+        const sql = `INSERT INTO department (name) VALUES (?)`;
+        db.query(sql, answer.addDept, (err, result) => {
+            if (err) throw err;
+            console.log('Added new department');
+            // THEN ask the user what they want to do next
+            beginPrompts();
+        });
+    });
 };
-
 
 // Create a new role
 addRole = () => {
-    // Get the existing departments from the 'department' table
-    
-        // THEN prompt the user for the "title", "salary", and "department" for the role
-    
-            // THEN run the query
-            // INSERT INTO role (title, salary, department_id)
-            // VALUES ("Engineer", 120000, 1);
-    
-                // THEN ask the user what they want to do next
+    // Prompt the user for the "title" and "salary" for the role
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'title',
+            message: "What role would you like to add?"
+        },
+        {
+            type: 'input',
+            name: 'salary',
+            message: "What is the salary for this role?"
+        }
+    ])
+    .then(answer => {
+        const params = [answer.title, answer.salary];
+        // Get the existing departments from the 'department' table
+        const getDept = `SELECT name, id FROM department`;
+        // THEN run the query
+        db.promise().query(getDept, (err, data) => {
+            if (err) throw err;
+            const dept = data.map(({name, id}) => ({name: name, value: id}));
 
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'dept',
+                    message: "What department does this role belong to?",
+                    choices: dept
+                }
+            ])
+            .then(deptChoice => {
+                const dept = deptChoice.dept;
+                params.push(dept);
+                
+                // INSERT INTO role (title, salary, department_id)
+                // VALUES ("Engineer", 120000, 1);
+                const sql = `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`;
+
+                db.query(sql, params, (err, result) => {
+                    if (err) throw err;
+                    console.log('Added new role');
+                    // THEN ask the user what they want to do next
+                    beginPrompts();
+                });
+            });
+        });
+    });
 };
 
 // Create a new employee
